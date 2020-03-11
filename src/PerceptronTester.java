@@ -1,4 +1,4 @@
-import java.util.Scanner;
+import java.io.IOException;
 
 /**
  * A tester class that tests the basic functionality of the perceptron.
@@ -6,7 +6,6 @@ import java.util.Scanner;
  * error of the calculation.
  *
  * @author Daniel Wu
- * @version 2/13/2020
  * @version 2/24/2020
  */
 public class PerceptronTester
@@ -17,22 +16,38 @@ public class PerceptronTester
     * the output and error at the end of execution, and uses the same perceptron
     * object to run all the tests.
     *
+    * The runtime arguments are formatted as follows:
+    *
+    * numLayers L1 L2 L3 ... LN numInputs learningFactor
+    *
     * @param args Runtime arguments
     */
-   public static void main(String args[])
+   public static void main(String args[]) throws IOException
    {
-      Scanner scanner = new Scanner(System.in);
-      Perceptron perceptron = new Perceptron();
-      String prompt = "p"; // sets prompt to "p" for initial testing
-      while (prompt.equals("p")) // while the user enters "p", the perceptron keeps running
+      int numLayers = Integer.parseInt(args[0]);
+      int[] structureConfig = new int[numLayers];
+      for (int n = 0; n < numLayers; n++)
       {
-         perceptron.setValues();
-         perceptron.setWeights();
-         perceptron.setExpectedValue();
-         System.out.println("\nOUTPUT = " + perceptron.calculateOutput());
-         System.out.println("\nERROR = " + perceptron.calculateError());
-         System.out.println("\nPlease type p to proceed with Perceptron testing");
-         prompt = scanner.nextLine();
-      } // while (prompt.equals("p"))
-   }
+         structureConfig[n] = Integer.parseInt(args[n + 1]);
+      }
+      int numInputs = Integer.parseInt(args[numLayers + 1]);
+      double learningFactor = Double.parseDouble(args[numLayers + 2]);
+      Perceptron perceptron = new Perceptron(numLayers, structureConfig, numInputs, learningFactor);
+
+      perceptron.setInputs("inputFile.in");
+      perceptron.setWeights();
+      perceptron.run("weights.out");
+      int iterationCount = 1;
+
+      while (iterationCount < 1000 && perceptron.getTotalError() > .001)
+      {
+         perceptron.run("weights.out");
+         iterationCount++;
+         System.out.println("Error is: " + perceptron.calculateError());
+      }
+      System.out.println("Error is: " + perceptron.calculateError() + "\n");
+      perceptron.printOutputs();
+      System.out.println("Perceptron converged in " + iterationCount + " iterations.");
+
+   } // public static void main(String args[])
 }
