@@ -87,6 +87,11 @@ public class PerceptronTester
          iterationCount++;
       }
 
+      if (perceptron.getTotalError() > ERROR_THRESHOLD)
+         System.out.println("Training ended by reaching max iterations allowed.");
+      else
+         System.out.println("Training ended by error going below error threshold.");
+
       System.out.println("Error threshold was: " + ERROR_THRESHOLD); // printing hyper-parameters and debug info
       System.out.println("Random weight range was from " + lowerWeightLimit + " to " + upperWeightLimit);
 
