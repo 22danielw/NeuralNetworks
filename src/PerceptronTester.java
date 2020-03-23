@@ -65,18 +65,18 @@ public class PerceptronTester
       int numInputs = Integer.parseInt(args[1]);
       String inputFileName = args[2];
       String outputFileName = args[3];
-      String weightFileName = args[4];
+      String weightInputFileName = args[4];
 
       Perceptron perceptron = new Perceptron(numLayers, layerSizes, numInputs, learningFactor);
 
       perceptron.setInputs(inputFileName);     // initializes inputs for the weight
-      if (weightFileName.equals("RNGWeights")) // sets the weights either randomly or from a file based on user preference
+      if (weightInputFileName.equals("RNGWeights")) // sets the weights either randomly or from a file based on user preference
       {
          perceptron.setWeights(lowerWeightLimit, upperWeightLimit);
       }
       else
       {
-         perceptron.setWeights(weightFileName);
+         perceptron.setWeights(weightInputFileName);
       }
       perceptron.train(outputFileName);
       int iterationCount = 1;
