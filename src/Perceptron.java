@@ -25,9 +25,8 @@ public class Perceptron
    private double[][][] deltaWeights;   // stores the values to change weights through each iteration, updates with each iteration
    private boolean debug = false;       // prints debug information if set to true
    private double[][] inputs;           // stores a number of inputs given by user's input and the size of the input layer
-   private double[] expectedValues;     // stores expected values given by user, each one corresponding to a set of inputs
-   private double currentExpectedValue; // stores the expected value of the current input vector, updated for each input vectorx
-   private double currentFinalValue;    // stores the final value of the current input vector, updated for each input vector
+   private double[][] expectedValues;     // stores expected values given by user, each one corresponding to a set of inpu ts
+   private double[][] finalValues;    // stores the final value of the current input vector, updated for each input vector
    private int numInputVectors;         // the number of input vectors being tested per iteration
    private double[] currentErrorVals;   // stores the error values of each input vector within an iteration
 
@@ -79,15 +78,31 @@ public class Perceptron
        * value for any input vector with the same index i.
        */
       inputs = new double[numInputVectors][];
+
       for (int n = 0; n < numInputVectors; n++) // stores the input vectors
       {
          inputs[n] = new double[layerSizes[0]];
       }
-      expectedValues = new double[numInputVectors];
+
+      expectedValues = new double[numInputVectors][];
+
+      for (int numInput = 0; numInput < numInputVectors; numInput++)
+      {
+         expectedValues[numInput] = new double[layerSizes[NUM_LAYERS - 1]];
+      }
+
       this.numInputVectors = numInputVectors;
 
       this.learningFactor = learningFactor;
       currentErrorVals = new double[numInputVectors];
+
+      finalValues = new double[numInputVectors][];
+
+      for (int inputNum = 0; inputNum < numInputVectors; inputNum++)
+      {
+         finalValues[inputNum] = new double[layerSizes[NUM_LAYERS - 1]];
+      }
+
    } // public Perceptron(int numLayers, int[] structureConfig, int numInputVectors, double learningFactor)
 
    /**
@@ -102,18 +117,30 @@ public class Perceptron
     * a11 a12 e2
     * ...etc
     */
-   public void setInputs(String configFile) throws IOException
+   public void setInputs(String inputFileName) throws IOException
    {
-      Scanner scanner = new Scanner(new File(configFile));
+      Scanner scanner = new Scanner(new File(inputFileName));
       for (int numInput = 0; numInput < numInputVectors; numInput++)
       {
          for (int k = 0; k < layerSizes[0]; k++) // parses user input, assigns vals to units[0][k]
          {
             inputs[numInput][k] = scanner.nextDouble();
          }
-         expectedValues[numInput] = scanner.nextDouble();
       }
    } // public void setInputs(String configFile) throws IOException
+
+
+   public void setExpectedValues(String expectedFileName) throws IOException
+   {
+      Scanner scanner = new Scanner(new File(expectedFileName));
+      for (int numInput = 0; numInput < numInputVectors; numInput++)
+      {
+         for (int i = 0; i < layerSizes[NUM_LAYERS - 1]; i++)
+         {
+            expectedValues[numInput][i] = scanner.nextDouble();
+         }
+      }
+   }
 
    /**
     * Sets the weights for the perceptron. These weights are set sequentially into the array of
@@ -181,7 +208,7 @@ public class Perceptron
     *
     * @return the value of the final unit after calculation in the current training set.
     */
-   public double calculateOutput(int inputSet)
+   public void calculateOutput(int inputSet)
    {
       for (int k = 0; k < layerSizes[0]; k++)
       {
@@ -196,11 +223,14 @@ public class Perceptron
          }
       }
 
-      currentFinalValue = units[NUM_LAYERS - 1][0];
-      return currentFinalValue; // the value of the only unit of the last layer (finalValue)
-   } // public double calculateOutput(int inputSet)
+      for (int i = 0; i < layerSizes[NUM_LAYERS - 1]; i++)
+      {
+         finalValues[inputSet][i] = units[NUM_LAYERS - 1][i];
+      }
+   } // public void calculateOutput(int inputSet)
 
    /**
+    *                                  *****FIX JAVADOC****
     * Calculates the error of the perceptron based on the function E(x) = (x^2)/2 where x = the
     * difference between the value of the final input unit and the expected value. Uses the current
     * final value and current expected value that was calculated to calculate the error. Then, the method
@@ -211,51 +241,15 @@ public class Perceptron
     *
     * @return the output of the error function of the perceptron.
     */
-   public double calculateError()
+   public double calculateError(int inputSet)
    {
-      double rawError = currentExpectedValue - currentFinalValue; // final value calculated by perceptron (output unit value)
+      double rawError = 0;
+      for (int i = 0; i < layerSizes[NUM_LAYERS - 1]; i++)
+      {
+         rawError += expectedValues[inputSet][i] - finalValues[inputSet][i];
+      }
       return (rawError * rawError) / 2.0;
    } // public double calculateError()
-
-   /**
-    * Prints all the values of the weights in the Perceptron at a given time.
-    * The format in which the weights are printed is as follows:
-    * w[0][0][0] = value0
-    * w[0][0][1] = value1
-    * w[0][1][0] = value2
-    */
-   public void printWeights()
-   {
-      for (int n = 0; n < weights.length; n++)
-      {
-         for (int k = 0; k < weights[n].length; k++)
-         {
-            for (int j = 0; j < weights[n][k].length; j++)
-            {
-               System.out.println("The value of w[" + n + "][" + k + "][" +
-                     j + "] = " + weights[n][k][j]);
-            }
-         }
-      }
-   } // public void printWeights()
-
-   /**
-    * Prints all the values of the activations in the Perceptron at a given time.
-    * The format in which the activations are printed is as follows:
-    * a[0][0] = value0
-    * a[0][1] = value1
-    * a[1][0] = value2
-    */
-   public void printActivations()
-   {
-      for (int n = 0; n < NUM_LAYERS; n++)
-      {
-         for (int k = 0; k < layerSizes[n]; k++)
-         {
-            System.out.println("The value of a[" + n + "][" + k + "] = " + units[n][k]);
-         }
-      }
-   } // public void printActivations()
 
    /**
     * Updates a unit at a given location in a given layer. It adds takes the weighted
@@ -295,9 +289,9 @@ public class Perceptron
     *
     * @param outFile the file that this method outputs to.
     */
-   public void updateWeights(String outFile) throws IOException
+   public void updateWeights(int inputNum, String outFile) throws IOException
    {
-      calculateDeltaWeights();
+      calculateDeltaWeights(inputNum);
 
       PrintWriter writer = new PrintWriter(new File(outFile));
       for (int n = 0; n < NUM_LAYERS - 1; n++)
@@ -322,14 +316,17 @@ public class Perceptron
     * It then stores each value into an array, with one adjustment value for each weight.
     * Currently configured to run on an A-B-1 perceptron.
     */
-   public void calculateDeltaWeights()
+   public void calculateDeltaWeights(int inputNum)
    {
       for (int k = 0; k < layerSizes[NUM_LAYERS - 2]; k++) // iterates through the weights in the final layer
       {
-         deltaWeights[NUM_LAYERS - 2][k][0] = getFinalAdjustmentValue(k, 0); // sets adjustment values of final layer
-         if (debug)
-            System.out.println("DEBUG: Delta[" + (NUM_LAYERS - 2) + "][" + k + "][" + 0 + "]: " +
-                  deltaWeights[NUM_LAYERS - 2][k][0]);
+         for (int i = 0; i < layerSizes[NUM_LAYERS - 1]; i++)
+         {
+            deltaWeights[NUM_LAYERS - 2][k][i] = getFinalAdjustmentValue(inputNum, k, i); // sets adjustment values of final layer
+            if (debug)
+               System.out.println("DEBUG: Delta[" + (NUM_LAYERS - 2) + "][" + k + "][" + i + "]: " +
+                     deltaWeights[NUM_LAYERS - 2][k][i]);
+         }
       }
 
       for (int n = NUM_LAYERS - 3; n >= 0; n--) // iterates through the hidden layers from right to left
@@ -338,11 +335,11 @@ public class Perceptron
          {
             for (int j = 0; j < layerSizes[n + 1]; j++)
             {
-               deltaWeights[n][k][j] = getHiddenAdjustmentValue(n, k, j); // sets the adjustment value of hidden layers
+               deltaWeights[n][k][j] = getHiddenAdjustmentValue(inputNum, n, k, j); // sets the adjustment value of hidden layers
                if (debug)
                {
                   System.out.println("DEBUG: Delta[" + n + "][" + k + "][" + j + "]: " +
-                        getHiddenAdjustmentValue(n, k, j));
+                        deltaWeights[n][k][j]);
                }
 
             } // for (int j = 0; j < layerSizes[n + 1]; j++)
@@ -368,18 +365,16 @@ public class Perceptron
     * @param nextIndex the position of the unit that the weight is attached to in the output layer
     * @return the adjustment value for the weight based on the current activation state
     */
-   private double getFinalAdjustmentValue(int currentIndex, int nextIndex)
+   private double getFinalAdjustmentValue(int inputNum, int currentIndex, int nextIndex)
    {
-      double partialDerivError = -1.0;
-
-      double netInputPreviousLayer = 0.0;
+      double capitalThetai = 0.0;
       for (int k = 0; k < layerSizes[NUM_LAYERS - 2]; k++) // creates a net input based on previous layer
       {
-         netInputPreviousLayer += units[NUM_LAYERS - 2][k] * weights[NUM_LAYERS - 2][k][nextIndex];
+         capitalThetai += units[NUM_LAYERS - 2][k] * weights[NUM_LAYERS - 2][k][nextIndex];
       }
-      partialDerivError *= currentExpectedValue - currentFinalValue;
-      partialDerivError *= activationFunctionDerivative(netInputPreviousLayer);
-      partialDerivError *= units[NUM_LAYERS - 2][currentIndex];
+      double partialDerivError = expectedValues[inputNum][nextIndex] - finalValues[inputNum][nextIndex];
+      partialDerivError *= activationFunctionDerivative(capitalThetai);
+      partialDerivError *= -units[NUM_LAYERS - 2][currentIndex];
       return -partialDerivError * learningFactor; // accumulator for the derivative eventually multiplied by learning factor
    }
 
@@ -400,28 +395,32 @@ public class Perceptron
     * @param nextIndex the position of the unit that the weight is attached to in the output layer
     * @return the adjustment value for the weight based on the current activation state
     */
-   private double getHiddenAdjustmentValue(int layerNum, int currentIndex, int nextIndex)
+   private double getHiddenAdjustmentValue(int inputNum, int layerNum, int currentIndex, int nextIndex)
    {
-      double partialDerivError = -1.0;
+      double capitalThetaj = 0.0;
 
-      double netInputPreviousLayer = 0.0;
       for (int k = 0; k < layerSizes[layerNum]; k++) // creates a net input based on previous layer
       {
-         netInputPreviousLayer += units[layerNum][k] * weights[layerNum][k][nextIndex];
+         capitalThetaj += units[layerNum][k] * weights[layerNum][k][nextIndex];
       }
 
-      double netInputNextLayer = 0.0;
-      for (int k = 0; k < layerSizes[layerNum + 1]; k++) // creates a net input based on previous layer
+      double capitalOmegaj = 0.0;
+
+      for (int i = 0; i < layerSizes[NUM_LAYERS - 1]; i++)
       {
-         netInputNextLayer += units[layerNum + 1][k] * weights[layerNum + 1][k][0]; // must update for multiple hidden layers
-      }
+         double capitalThetai = 0.0;
+         for (int k = 0; k < layerSizes[NUM_LAYERS - 2]; k++) // creates a net input based on previous layer
+         {
+            capitalThetai += units[NUM_LAYERS - 2][k] * weights[NUM_LAYERS - 2][k][i];
+         }
+         double lowercaseOmegai =  expectedValues[inputNum][i] - units[NUM_LAYERS - 1][i];
+         capitalOmegaj += (activationFunctionDerivative(capitalThetai) * lowercaseOmegai)
+               * weights[NUM_LAYERS - 2][nextIndex][i];
+      } // for (int i = 0; i < layerSizes[NUM_LAYERS - 1]; i++)
 
-      partialDerivError *= units[layerNum][currentIndex];
-      partialDerivError *= activationFunctionDerivative(netInputPreviousLayer);
-      partialDerivError *= currentExpectedValue - currentFinalValue;
-      partialDerivError *= activationFunctionDerivative(netInputNextLayer);
-      partialDerivError *= weights[NUM_LAYERS - 2][nextIndex][0];
-      return -partialDerivError * learningFactor; // accumulator of the derivative eventually multiplied by learning factor
+      double partialDerivError = -units[layerNum][currentIndex];
+      partialDerivError *= activationFunctionDerivative(capitalThetaj) * capitalOmegaj;
+      return partialDerivError * -learningFactor; // accumulator of the derivative eventually multiplied by learning factor
    }
 
    /**
@@ -438,42 +437,26 @@ public class Perceptron
    {
       for (int inputNum = 0; inputNum < numInputVectors; inputNum++)
       {
-         currentExpectedValue = expectedValues[inputNum];
          calculateOutput(inputNum);
-         currentErrorVals[inputNum] = calculateError();
-         updateWeights(outputFile);
+         currentErrorVals[inputNum] = calculateError(inputNum);
+         updateWeights(inputNum, outputFile);
       } // for (int inputNum = 0; inputNum < numInputVectors; inputNum++)
    } // public void run(String outputFile) throws IOException
 
    /**
-    * Prints the outputs of the perceptron for each input vector on a new line by calculating it each time.
+    * Prints the outputs of the perceptron for each input vector on a new line.
     */
    public void printOutputs()
    {
       for (int inputNum = 0; inputNum < numInputVectors; inputNum++)
       {
-         System.out.println("Output " + inputNum + " is: " + calculateOutput(inputNum));
+         for (int i = 0; i < layerSizes[NUM_LAYERS - 1]; i++)
+         {
+            System.out.println("Output " + i + " for input set " + inputNum + " is: " + finalValues[inputNum][i]
+                               + " (should be " + expectedValues[inputNum][i] + ")");
+         }
+         System.out.print("\n");
       }
-   }
-
-   /**
-    * Returns the array containing the size of each layer in the perceptron. Accessor method.
-    *
-    * @return the layerSizes array
-    */
-   public int[] getLayerSizes()
-   {
-      return layerSizes;
-   }
-
-   /**
-    * Returns the learning factor of the perceptron. Accessor method.
-    *
-    * @return the learningFactor instance variable
-    */
-   public double getLearningFactor()
-   {
-      return learningFactor;
    }
 
    /**
@@ -517,5 +500,65 @@ public class Perceptron
    {
       double activationOfInput = activationFunction(input);
       return activationOfInput * (1.0 - activationOfInput);
+   }
+
+   /**
+    * Prints all the values of the weights in the Perceptron at a given time.
+    * The format in which the weights are printed is as follows:
+    * w[0][0][0] = value0
+    * w[0][0][1] = value1
+    * w[0][1][0] = value2
+    */
+   public void printWeights()
+   {
+      for (int n = 0; n < weights.length; n++)
+      {
+         for (int k = 0; k < weights[n].length; k++)
+         {
+            for (int j = 0; j < weights[n][k].length; j++)
+            {
+               System.out.println("The value of w[" + n + "][" + k + "][" +
+                     j + "] = " + weights[n][k][j]);
+            }
+         }
+      }
+   } // public void printWeights()
+
+   /**
+    * Prints all the values of the activations in the Perceptron at a given time.
+    * The format in which the activations are printed is as follows:
+    * a[0][0] = value0
+    * a[0][1] = value1
+    * a[1][0] = value2
+    */
+   public void printActivations()
+   {
+      for (int n = 0; n < NUM_LAYERS; n++)
+      {
+         for (int k = 0; k < layerSizes[n]; k++)
+         {
+            System.out.println("The value of a[" + n + "][" + k + "] = " + units[n][k]);
+         }
+      }
+   } // public void printActivations()
+
+   /**
+    * Returns the array containing the size of each layer in the perceptron. Accessor method.
+    *
+    * @return the layerSizes array
+    */
+   public int[] getLayerSizes()
+   {
+      return layerSizes;
+   }
+
+   /**
+    * Returns the learning factor of the perceptron. Accessor method.
+    *
+    * @return the learningFactor instance variable
+    */
+   public double getLearningFactor()
+   {
+      return learningFactor;
    }
 }

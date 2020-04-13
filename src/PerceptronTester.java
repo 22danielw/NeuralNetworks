@@ -29,7 +29,7 @@ public class PerceptronTester
     *
     * The runtime arguments are formatted as follows:
     *
-    * configFileName numInputs inputFileName outputFileName weightConfigFileName
+    * configFileName numInputs inputFileName expectedValueFileName outputFileName weightConfigFileName
     *
     * The configuration file format is as follows:
     *
@@ -64,12 +64,15 @@ public class PerceptronTester
 
       int numInputs = Integer.parseInt(args[1]);
       String inputFileName = args[2];
-      String outputFileName = args[3];
-      String weightInputFileName = args[4];
+      String expectedValueFileName = args[3];
+      String outputFileName = args[4];
+      String weightInputFileName = args[5];
 
       Perceptron perceptron = new Perceptron(numLayers, layerSizes, numInputs, learningFactor);
 
       perceptron.setInputs(inputFileName);     // initializes inputs for the weight
+      perceptron.setExpectedValues(expectedValueFileName);
+
       if (weightInputFileName.equals("RNGWeights")) // sets the weights either randomly or from a file based on user preference
       {
          perceptron.setWeights(lowerWeightLimit, upperWeightLimit);
