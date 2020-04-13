@@ -2,13 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="402484ab-fdf2-4a6a-9d5c-39435c44ff54" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config.in" beforeDir="false" afterPath="$PROJECT_DIR$/config.in" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/inputFile.in" beforeDir="false" afterPath="$PROJECT_DIR$/inputFile.in" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Wu_NeuralNetworks/Perceptron.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Wu_NeuralNetworks/Perceptron.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/Wu_NeuralNetworks/PerceptronTester.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/Wu_NeuralNetworks/PerceptronTester.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Perceptron.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Perceptron.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/PerceptronTester.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/PerceptronTester.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/weights.out" beforeDir="false" afterPath="$PROJECT_DIR$/weights.out" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
@@ -29,12 +22,12 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/Perceptron.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="424">
-              <caret line="27" column="123" selection-start-line="27" selection-start-column="123" selection-end-line="27" selection-end-column="123" />
+            <state relative-caret-position="253">
+              <caret line="64" column="66" lean-forward="true" selection-start-line="64" selection-start-column="66" selection-end-line="64" selection-end-column="66" />
               <folding>
-                <element signature="e#21691#21692#0" expanded="true" />
-                <element signature="e#23669#23670#0" expanded="true" />
-                <element signature="e#23887#23888#0" expanded="true" />
+                <element signature="e#21692#21693#0" expanded="true" />
+                <element signature="e#23670#23671#0" expanded="true" />
+                <element signature="e#23888#23889#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -130,8 +123,8 @@
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="3076" />
-    <option name="y" value="-126" />
+    <option name="x" value="3119" />
+    <option name="y" value="-129" />
     <option name="width" value="1774" />
     <option name="height" value="1176" />
   </component>
@@ -163,6 +156,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="project.structure.last.edited" value="Modules" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
@@ -224,10 +218,10 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="3076" y="-126" width="1774" height="1176" extended-state="0" />
+    <frame x="2694" y="-133" width="1774" height="1176" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49910232" visible="true" weight="0.20900694" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49910232" visible="true" weight="0.20900694" />
       <window_info id="Structure" order="1" sideWeight="0.50089765" side_tool="true" weight="0.26067746" />
       <window_info id="Image Layers" order="2" />
       <window_info id="Designer" order="3" />
@@ -236,7 +230,7 @@
       <window_info id="Favorites" order="6" sideWeight="0.50089765" side_tool="true" weight="0.26067746" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32990867" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49852726" visible="true" weight="0.25276753" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49852726" visible="true" weight="0.25276753" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -333,13 +327,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/config.in">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="1" column="5" lean-forward="true" selection-start-line="1" selection-start-column="5" selection-end-line="1" selection-end-column="5" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/PerceptronTester.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-1185">
@@ -350,14 +337,21 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/config.in">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="1" column="5" lean-forward="true" selection-start-line="1" selection-start-column="5" selection-end-line="1" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/Perceptron.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="424">
-          <caret line="27" column="123" selection-start-line="27" selection-start-column="123" selection-end-line="27" selection-end-column="123" />
+        <state relative-caret-position="253">
+          <caret line="64" column="66" lean-forward="true" selection-start-line="64" selection-start-column="66" selection-end-line="64" selection-end-column="66" />
           <folding>
-            <element signature="e#21691#21692#0" expanded="true" />
-            <element signature="e#23669#23670#0" expanded="true" />
-            <element signature="e#23887#23888#0" expanded="true" />
+            <element signature="e#21692#21693#0" expanded="true" />
+            <element signature="e#23670#23671#0" expanded="true" />
+            <element signature="e#23888#23889#0" expanded="true" />
           </folding>
         </state>
       </provider>
