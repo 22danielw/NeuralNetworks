@@ -45,7 +45,6 @@ public class PerceptronTester
     * total error goes below the threshold. Then, the tester prints the number of iterations it took
     * to reach the result, the output and the error.
     *
-    *
     * @param args Runtime arguments containing information to initialize and configure the perceptron.
     */
    public static void main(String args[]) throws IOException

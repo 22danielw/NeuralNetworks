@@ -511,7 +511,7 @@ public class Perceptron
       {
          totalError += currentErrorVals[inputNum];
       }
-      
+
       return totalError;
    } // public double getTotalError()
 
