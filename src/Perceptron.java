@@ -3,17 +3,18 @@ import java.util.Scanner;
 import java.util.StringTokenizer;
 
 /**
- * A class representing the A-B-1 perceptron. Contains functionality to
+ * A class representing the A-B-C perceptron. Contains functionality to
  * configure the number of units in the activation and hidden layer as
  * well as the number of hidden layers, setting the initial weights of
- * the perceptron, and calculating the value of the final output. Furthermore,
+ * the perceptron, and calculating the values of the final outputs. Furthermore,
  * the perceptron can train itself using multiple input values and their
- * corresponding expected values. Currently configured to work only on an
- * A-B-1 perceptron.
+ * corresponding expected values given by the user. Currently configured to work
+ * only on an A-B-C perceptron.
  *
  * @author Daniel Wu
  * @version 03/05/2020
  * @version 03/23/2020
+ * @version 04/14/2020
  */
 public class Perceptron
 {
@@ -25,25 +26,25 @@ public class Perceptron
    private double[][][] deltaWeights;   // stores the values to change weights through each iteration, updates with each iteration
    private boolean debug = false;       // prints debug information if set to true
    private double[][] inputs;           // stores a number of inputs given by user's input and the size of the input layer
-   private double[][] expectedValues;     // stores expected values given by user, each one corresponding to a set of inpu ts
-   private double[][] finalValues;    // stores the final value of the current input vector, updated for each input vector
+   private double[][] expectedValues;   // stores expected values given by user for all , each one corresponding to a set of inputs
+   private double[][] finalValues;      // stores the final values of the all input vectors, updated during each calculation
    private int numInputVectors;         // the number of input vectors being tested per iteration
    private double[] currentErrorVals;   // stores the error values of each input vector within an iteration
 
 
    /**
     * Constructs a Perceptron based on parameters given by the user. Creates the structure of the perceptron
-    * based on the number of layers and size of layers passed by the user, and initializes the weights array using
-    * a fully connected model. Also takes and stores a set learning factor from the user and stores the input
-    * vectors used to run and train the network.
+    * based on the number of layers and size of layers passed by the user, and initializes the weights, expected values,
+    * delta weights, and final value arrays using a fully connected model. Also takes and stores a set learning factor from
+    * the user and stores the input vectors used to run and train the network.
     *
     * The format of the structureConfig array is as follows:
     * [layerSize1, layerSize2, ... , layersizeN]
     *
-    * @param numLayers the number of layers in the perceptron
+    * @param numLayers       the number of layers in the perceptron
     * @param structureConfig an array containing the size of each layer in the perceptron
     * @param numInputVectors the number of input vectors that the perceptron will train with
-    * @param learningFactor the learning factor for the perceptron, decided by the user
+    * @param learningFactor  the learning factor for the perceptron, decided by the user
     */
    public Perceptron(int numLayers, int[] structureConfig, int numInputVectors, double learningFactor)
    {
@@ -57,7 +58,9 @@ public class Perceptron
          layerSizes[n] = structureConfig[n];
       }
 
+
       weights = new double[NUM_LAYERS - 1][][];
+
       for (int n = 0; n < weights.length; n++) // creates weights array based on sizes of layers
       {
          int currentLayerSize = layerSizes[n];
@@ -65,7 +68,9 @@ public class Perceptron
          weights[n] = new double[currentLayerSize][nextLayerSize];
       } // for (int n = 0; i < weights.length; n++)
 
+
       deltaWeights = new double[NUM_LAYERS - 1][][];
+
       for (int n = 0; n < deltaWeights.length; n++) // creates weights array based on sizes of layers
       {
          int currentLayerSize = layerSizes[n];
@@ -86,19 +91,19 @@ public class Perceptron
 
       expectedValues = new double[numInputVectors][];
 
-      for (int numInput = 0; numInput < numInputVectors; numInput++)
+      for (int numInput = 0; numInput < numInputVectors; numInput++) // initializing the expected value storage array
       {
          expectedValues[numInput] = new double[layerSizes[NUM_LAYERS - 1]];
       }
 
       this.numInputVectors = numInputVectors;
-
       this.learningFactor = learningFactor;
+
       currentErrorVals = new double[numInputVectors];
 
       finalValues = new double[numInputVectors][];
 
-      for (int inputNum = 0; inputNum < numInputVectors; inputNum++)
+      for (int inputNum = 0; inputNum < numInputVectors; inputNum++) // initializing the final value storage array
       {
          finalValues[inputNum] = new double[layerSizes[NUM_LAYERS - 1]];
       }
@@ -106,20 +111,26 @@ public class Perceptron
    } // public Perceptron(int numLayers, int[] structureConfig, int numInputVectors, double learningFactor)
 
    /**
-    * The format of the config file is as follows where n is the number of input vectors,
-    * a is the initial inputs, and e is the expected values. Sets the inputs of network by taking
-    * the inputs and their expected output sequentially.
+    * Sets the inputs of network by taking the inputs given in the file and setting them
+    * to the proper array (inputs array). Takes each set of inputs based on the size
+    * of the initial layer and the total number of expected input sets.
     *
-    * The precondition for this method is that the user knows the size of the perceptron and
+    * The precondition for this method is that the user knows the size of the perceptron and the number of expected input sets
     * gives inputs accordingly.
     *
-    * a01 a02 e1
-    * a11 a12 e2
+    * The format of the input file is as follows where a is the initial inputs:
+    *
+    * a1 a2 ... (first input set)
+    * a1 a2 ... (second input set)
     * ...etc
+    *
+    * @param inputFileName the name of the file containing the set of input vectors for the perceptron
+    * @throws IOException if an IO error occurs
     */
    public void setInputs(String inputFileName) throws IOException
    {
       Scanner scanner = new Scanner(new File(inputFileName));
+
       for (int numInput = 0; numInput < numInputVectors; numInput++)
       {
          for (int k = 0; k < layerSizes[0]; k++) // parses user input, assigns vals to units[0][k]
@@ -127,20 +138,37 @@ public class Perceptron
             inputs[numInput][k] = scanner.nextDouble();
          }
       }
-   } // public void setInputs(String configFile) throws IOException
 
+   } // public void setInputs(String inputFileName) throws IOException
 
+   /**
+    * Sets the expected values of network by taking the values given in the file and setting them
+    * to the proper array (expected vals array). Takes each set of expected values based on the size
+    * of the final layer and the total number of expected input sets.
+    *
+    * The format of the input file is as follows where e is the expected value:
+    *
+    * e1 e2 ... (first input set)
+    * e1 e2 ... (second input set)
+    * ...etc
+    *
+    * @param expectedFileName the name of the file containing the sets of expected values of the perceptron
+    * @throws IOException if an IO error occurs
+    */
    public void setExpectedValues(String expectedFileName) throws IOException
    {
       Scanner scanner = new Scanner(new File(expectedFileName));
+
       for (int numInput = 0; numInput < numInputVectors; numInput++)
       {
          for (int i = 0; i < layerSizes[NUM_LAYERS - 1]; i++)
          {
             expectedValues[numInput][i] = scanner.nextDouble();
          }
+
       }
-   }
+
+   } // public void setExpectedValues(String expectedFileName) throws IOException
 
    /**
     * Sets the weights for the perceptron. These weights are set sequentially into the array of
@@ -156,6 +184,7 @@ public class Perceptron
    public void setWeights(String weightFile) throws IOException
    {
       Scanner scanner = new Scanner(new File(weightFile));
+
       for (int n = 0; n < NUM_LAYERS - 1; n++)
       {
          for (int k = 0; k < layerSizes[n]; k++)
@@ -168,6 +197,7 @@ public class Perceptron
             }
          }
       }
+
       if (debug)
          System.out.println("\n");
 
@@ -199,14 +229,11 @@ public class Perceptron
    } // public void setWeights(double lowerLimit, double upperLimit)
 
    /**
-    * Calculates and returns the value of the final unit for the current training set. This method updates
-    * the value of each
-    * unit using the forwardUpdateUnit starting from the first hidden layer and ending with the
-    * output layer. It then returns the calculated value of the final unit for the current training set.
+    * Calculates the value of the final unit for the current training set. This method updates unit using
+    * the forwardUpdateUnit starting from the first hidden layer and ending with the
+    * output layer. It then assigns the calculated value of the final unit for the current training set.
     *
-    * @param inputSet the input/output set that is currently being run
-    *
-    * @return the value of the final unit after calculation in the current training set.
+    * @param inputSet the input set that is currently being run
     */
    public void calculateOutput(int inputSet)
    {
@@ -227,29 +254,30 @@ public class Perceptron
       {
          finalValues[inputSet][i] = units[NUM_LAYERS - 1][i];
       }
+
    } // public void calculateOutput(int inputSet)
 
    /**
-    *                                  *****FIX JAVADOC****
-    * Calculates the error of the perceptron based on the function E(x) = (x^2)/2 where x = the
-    * difference between the value of the final input unit and the expected value. Uses the current
-    * final value and current expected value that was calculated to calculate the error. Then, the method
-    * returns the calculated error.
+    * Calculates the error of the perceptron based on the equation given in the documentation. Performs a summation
+    * over every (expected - final val)^2 in a given input set, then divides that by 2. The method then returns this
+    * calculation.
     *
     * A precondition for this method is that calculateOutput() has already been called and the
-    * the final unit's value has already been calculated.
+    * the final units' values have already been calculated (and stored in the finalValues[] array).
     *
-    * @return the output of the error function of the perceptron.
+    * @param inputSet the input set over which the error is being calculated
+    * @return the output of the error function of the perceptron for a given input set.
     */
    public double calculateError(int inputSet)
    {
       double rawError = 0;
+
       for (int i = 0; i < layerSizes[NUM_LAYERS - 1]; i++)
       {
          rawError += expectedValues[inputSet][i] - finalValues[inputSet][i];
       }
       return (rawError * rawError) / 2.0;
-   } // public double calculateError()
+   } // public double calculateError(int inputSet)
 
    /**
     * Updates a unit at a given location in a given layer. It adds takes the weighted
@@ -266,12 +294,14 @@ public class Perceptron
    {
       double netInput = 0.0;
       String debugMessage = "";
+
       for (int k = 0; k < layerSizes[layer - 1]; k++) // creates a net input
       {
          netInput += units[layer - 1][k] * weights[layer - 1][k][location];
          debugMessage += "a[" + (layer - 1) + "][" + k + "] * w[" + (layer - 1) +
                "][" + k + "][" + location + "] + ";
       }
+
       units[layer][location] = activationFunction(netInput); // sets output layer to f(net input)
 
       if (debug) // prints debug message that prints the relationships between units
@@ -279,6 +309,7 @@ public class Perceptron
          debugMessage = debugMessage.substring(0, debugMessage.length() - 2); // Cleaning message
          System.out.println("DEBUG: a[" + layer + "][" + location + "] = " + debugMessage);
       }
+
    } // private void forwardUpdateUnit(int layer, int location)
 
 
@@ -287,13 +318,16 @@ public class Perceptron
     * adjustment value stored in the deltaWeights[] array. Then, it writes each of the weights to a file
     * with a name given by a user, each one on a new line, to save them.
     *
-    * @param outFile the file that this method outputs to.
+    * @param inputNum the input set that is used to calculate the delta weights of the perceptron
+    * @param outFile the file that this method outputs to
+    * @throws IOException if an output error is detected
     */
    public void updateWeights(int inputNum, String outFile) throws IOException
    {
       calculateDeltaWeights(inputNum);
 
       PrintWriter writer = new PrintWriter(new File(outFile));
+
       for (int n = 0; n < NUM_LAYERS - 1; n++)
       {
          for (int k = 0; k < layerSizes[n]; k++)
@@ -305,16 +339,19 @@ public class Perceptron
             }
          }
       }
+
       writer.flush();
       writer.close();
-   } // public void updateWeights(String outFile) throws IOException
+   } // public void updateWeights(int inputNum, String outFile) throws IOException
 
    /**
     * Calculates the adjustment values of each weight in the perceptron. This method does so
-    * by calculating iterating through each weight connected to the final layer first, then
-    * using a separate loop construct to iterate through remaining layers of the perceptron.
+    * by calculating iterating through each weight in the hidden layer connected to each weight in the final layer
+    * first, then using a separate loop construct to iterate through remaining layers of the perceptron.
     * It then stores each value into an array, with one adjustment value for each weight.
-    * Currently configured to run on an A-B-1 perceptron.
+    * Currently configured to run on an A-B-C perceptron.
+    *
+    * @param inputNum the set of inputs over which the weight adjustment values are calculated.
     */
    public void calculateDeltaWeights(int inputNum)
    {
@@ -327,7 +364,7 @@ public class Perceptron
                System.out.println("DEBUG: Delta[" + (NUM_LAYERS - 2) + "][" + k + "][" + i + "]: " +
                      deltaWeights[NUM_LAYERS - 2][k][i]);
          }
-      }
+      } // for (int k = 0; k < layerSizes[NUM_LAYERS - 2]; k++)
 
       for (int n = NUM_LAYERS - 3; n >= 0; n--) // iterates through the hidden layers from right to left
       {
@@ -348,19 +385,18 @@ public class Perceptron
 
       } // for (int n = NUM_LAYERS - 3; n >= 0; n--)
 
-   } // public void calculateDeltaWeights()
+   } // public void calculateDeltaWeights(int inputNum)
 
    /**
     * The method that returns the adjustment value for the weights connected to the final layer of the perceptron.
     * Returns the value for a given weight that is identified by the previous and next units it is connected to.
-    * This method is currently set to work in an A-B-1 network, so some code is specific to that configuration.
+    * This method is currently set to work in an A-B-C network, so some code is specific to that configuration.
     * Calculates the value by multiplying the partial derivative of the error function with respect to the
-    * current weight by the learning factor, as shown in the following expression:
+    * current weight by the learning factor, as shown in the documentation. The variable names and constructs are
+    * not optimized; they are configured to mirror the documentation provided exactly. This method returns the final
+    * calculation (adjustment value).
     *
-    * (−(T0 − F0)f'(netInputFinalLayer) * hj) * LEARNING_FACTOR
-    *
-    * where T0 is the expected value, F0 is the final value, and hj is the input unit of the weight.
-    *
+    * @param inputNum the input set over which the adjustment values for the final connectivity layer are calculated
     * @param currentIndex the position of the unit that the weight is attached to in the input layer
     * @param nextIndex the position of the unit that the weight is attached to in the output layer
     * @return the adjustment value for the weight based on the current activation state
@@ -368,29 +404,28 @@ public class Perceptron
    private double getFinalAdjustmentValue(int inputNum, int currentIndex, int nextIndex)
    {
       double capitalThetai = 0.0;
+
       for (int k = 0; k < layerSizes[NUM_LAYERS - 2]; k++) // creates a net input based on previous layer
       {
          capitalThetai += units[NUM_LAYERS - 2][k] * weights[NUM_LAYERS - 2][k][nextIndex];
       }
+
       double partialDerivError = expectedValues[inputNum][nextIndex] - finalValues[inputNum][nextIndex];
       partialDerivError *= activationFunctionDerivative(capitalThetai);
       partialDerivError *= -units[NUM_LAYERS - 2][currentIndex];
       return -partialDerivError * learningFactor; // accumulator for the derivative eventually multiplied by learning factor
-   }
+   } // private double getFinalAdjustmentValue(int inputNum, int currentIndex, int nextIndex)
 
    /**
     * The method that returns the adjustment value for the weight of any hidden layer of the perceptron.
     * Returns the value for a given weight that is identified by the previous and next units it is connected to
     * as well as the layer that the weight is in (layer number of the input unit)
     * Calculates the value by multiplying the partial derivative of the error function with respect to the
-    * current weight by the learning factor, as shown in the following expression:
+    * current weight by the learning factor, as shown in the documentation. The code is not optimized; it is implemented
+    * to mirror the documentation provided exactly. This method returns the final calculation (adjustment value).
     *
-    * (−ak * f'(netInputPreviousLayer) * (T0 − F0) * f'(netInputFinalLayer) * wj0) * LEARNING_FACTOR
-    *
-    * where T0 is the expected value, F0 is the final value, ak is the input unit of the weight, and
-    * wj0 is the weight of the next layer that takes the current layer's output unit as its input unit.
-    *
-    * @param layerNum the layer that the weight is in
+    * @param inputNum the input set over which the adjustment values for the hidden layer are calculated
+    * @param layerNum the connectivity layer that the weight is in
     * @param currentIndex the position of the unit that the weight is attached to in the input layer
     * @param nextIndex the position of the unit that the weight is attached to in the output layer
     * @return the adjustment value for the weight based on the current activation state
@@ -409,10 +444,12 @@ public class Perceptron
       for (int i = 0; i < layerSizes[NUM_LAYERS - 1]; i++)
       {
          double capitalThetai = 0.0;
+
          for (int k = 0; k < layerSizes[NUM_LAYERS - 2]; k++) // creates a net input based on previous layer
          {
             capitalThetai += units[NUM_LAYERS - 2][k] * weights[NUM_LAYERS - 2][k][i];
          }
+
          double lowercaseOmegai =  expectedValues[inputNum][i] - units[NUM_LAYERS - 1][i];
          capitalOmegaj += (activationFunctionDerivative(capitalThetai) * lowercaseOmegai)
                * weights[NUM_LAYERS - 2][nextIndex][i];
@@ -421,12 +458,13 @@ public class Perceptron
       double partialDerivError = -units[layerNum][currentIndex];
       partialDerivError *= activationFunctionDerivative(capitalThetaj) * capitalOmegaj;
       return partialDerivError * -learningFactor; // accumulator of the derivative eventually multiplied by learning factor
-   }
+
+   } // private double getHiddenAdjustmentValue(int inputNum, int layerNum, int currentIndex, int nextIndex)
 
    /**
     * Trains the perceptron by sequentially evaluating the perceptron for each input vector. After each
     * iteration, it updates the weights and outputs them to a given output file. One iteration consists of
-    * calculating the output with one input/expected value set and, with the same set, updating the weights
+    * calculating the output layer with one input/expected value set and, with the same set, updating the weights
     * of the perceptron. These new weight values are stored and used to run the next input vector.
     *
     *
@@ -441,7 +479,7 @@ public class Perceptron
          currentErrorVals[inputNum] = calculateError(inputNum);
          updateWeights(inputNum, outputFile);
       } // for (int inputNum = 0; inputNum < numInputVectors; inputNum++)
-   } // public void run(String outputFile) throws IOException
+   } // public void train(String outputFile) throws IOException
 
    /**
     * Prints the outputs of the perceptron for each input vector on a new line.
@@ -468,10 +506,12 @@ public class Perceptron
    public double getTotalError()
    {
       double totalError = 0.0;
+
       for (int inputNum = 0; inputNum < numInputVectors; inputNum++)
       {
          totalError += currentErrorVals[inputNum];
       }
+      
       return totalError;
    } // public double getTotalError()
 
@@ -508,6 +548,7 @@ public class Perceptron
     * w[0][0][0] = value0
     * w[0][0][1] = value1
     * w[0][1][0] = value2
+    * ... etc
     */
    public void printWeights()
    {
@@ -530,6 +571,7 @@ public class Perceptron
     * a[0][0] = value0
     * a[0][1] = value1
     * a[1][0] = value2
+    * ... etc
     */
    public void printActivations()
    {

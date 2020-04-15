@@ -3,7 +3,7 @@ import java.io.IOException;
 import java.util.Scanner;
 
 /**
- * A tester class that tests the basic functionality of the perceptron.
+ * A tester class that tests the basic functionality of the A-B-C perceptron.
  * Prints information relevant to debugging and testing such as the output,
  * error of the calculation, and various hyper-parameters. The tester also tests
  * the training ability of the perceptron.
@@ -11,6 +11,7 @@ import java.util.Scanner;
  * @author Daniel Wu
  * @version 2/24/2020
  * @version 03/23/2020
+ * @version 04/14/2020
  */
 public class PerceptronTester
 {
@@ -52,10 +53,12 @@ public class PerceptronTester
       Scanner scanner = new Scanner(new File(args[0]));
       int numLayers = scanner.nextInt();              // sets number of layers
       int[] layerSizes = new int[numLayers];
+
       for (int i = 0; i < numLayers; i++)             // sets perceptron layer sizes
       {
          layerSizes[i] = scanner.nextInt();
       }
+
       double learningFactor = scanner.nextDouble();   // sets learning factor
       MAX_ITERATIONS = scanner.nextInt();             // sets the max iterations
       ERROR_THRESHOLD = scanner.nextDouble();         // sets error threshold
@@ -81,16 +84,21 @@ public class PerceptronTester
       {
          perceptron.setWeights(weightInputFileName);
       }
+
+
       perceptron.train(outputFileName);
       int iterationCount = 1;
 
-      while (iterationCount < MAX_ITERATIONS && perceptron.getTotalError() > ERROR_THRESHOLD)
+      /*
+       * The training loop that uses average error as an error threshold.
+       */
+      while (iterationCount < MAX_ITERATIONS && (perceptron.getTotalError() / numLayers) > ERROR_THRESHOLD)
       {
          perceptron.train(outputFileName);
          iterationCount++;
       }
 
-      if (perceptron.getTotalError() > ERROR_THRESHOLD)
+      if ((perceptron.getTotalError() / numInputs) > ERROR_THRESHOLD) // using average error as the error threshold
          System.out.println("Training ended by reaching max iterations allowed.");
       else
          System.out.println("Training ended by error going below error threshold.");
